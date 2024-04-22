@@ -1,13 +1,15 @@
 import datetime
 import json
 from unittest.mock import patch
+
 import requests_mock
 from parameterized import parameterized
+
 from pylti1p3.grade import Grade
-from pylti1p3.lineitem import LineItem, TLineItem
+from pylti1p3.lineitem import LineItem
+from .base import TestServicesBase
 from .request import FakeRequest
 from .tool_config import get_test_tool_conf
-from .base import TestServicesBase
 
 
 class TestGrades(TestServicesBase):
@@ -210,6 +212,65 @@ class TestGrades(TestServicesBase):
                     self.assertEqual(m.request_history[2].method, 'DELETE')
                     self.assertEqual(m.request_history[2].url, line_item_url)
 
+    def test_find_or_create_lineitem(self):
+        from pylti1p3.contrib.django import DjangoMessageLaunch
+
+        tool_conf = get_test_tool_conf()
+
+        with patch.object(
+                DjangoMessageLaunch, "_get_jwt_body", autospec=True
+        ) as get_jwt_body:
+            message_launch = DjangoMessageLaunch(FakeRequest(), tool_conf)
+            line_items_url = "http://canvas.docker/api/lti/courses/1/line_items"
+            get_jwt_body.side_effect = lambda x: self._get_jwt_body()
+            with patch("socket.gethostbyname", return_value="127.0.0.1"):
+                with requests_mock.Mocker() as m:
+                    m.post(
+                        self._get_auth_token_url(),
+                        text=json.dumps(self._get_auth_token_response()),
+                    )
+
+                    line_items_create_response = {
+                        "id": line_items_url,
+                        "scoreMaximum": 60.0,  # we changed the maximum score
+                        "tag": "test",
+                        "label": "Test",
+                        "https://canvas.instructure.com/lti/submission_type": {
+                            "type": "external_tool",
+                            "external_tool_url": "https://external.tool/api/lti/launch/",
+                        }
+                    }
+
+                    m.get(line_items_url, text="[]")
+                    m.post(line_items_url, text=json.dumps(line_items_create_response))
+
+                    ags = message_launch.validate_registration().get_ags()
+
+                    test_line_item = LineItem()
+                    test_line_item.set_tag("test").set_score_maximum(100).set_label(
+                        "Test"
+                    ).set_submission_type("external_tool", "https://external.tool/api/lti/launch/")
+
+                    line_item = ags.find_or_create_lineitem(test_line_item)
+
+                    self.assertIsNotNone(line_item)
+
+                    line_item.set_score_maximum(60)
+
+                    self.assertEqual(line_item.get_id(), line_items_url)
+                    self.assertEqual(line_item.get_score_maximum(), 60.0)
+                    self.assertEqual(line_item.get_tag(), "test")
+                    self.assertEqual(line_item.get_label(), "Test")
+                    self.assertEqual(line_item.get_submission_type(), {
+                        "type": "external_tool",
+                        "external_tool_url": "https://external.tool/api/lti/launch/",
+                    })
+
+                    # assert POST was called for specific URL
+                    self.assertEqual(len(m.request_history), 3)  # Auth, GET Line items, POST Line items
+                    self.assertEqual(m.request_history[2].method, 'POST')
+                    self.assertEqual(m.request_history[2].url, line_items_url)
+
     def test_update_lineitem(self):
         from pylti1p3.contrib.django import DjangoMessageLaunch
 
@@ -267,6 +328,6 @@ class TestGrades(TestServicesBase):
                     self.assertEqual(new_lineitem.get_label(), "Test")
 
                     # assert PUT was called for specific URL
-                    self.assertEqual(len(m.request_history), 3)  # Auth, GET Line items, DELETE Line item
+                    self.assertEqual(len(m.request_history), 3)  # Auth, GET Line items, PUT Line item
                     self.assertEqual(m.request_history[2].method, 'PUT')
                     self.assertEqual(m.request_history[2].url, line_item_url)

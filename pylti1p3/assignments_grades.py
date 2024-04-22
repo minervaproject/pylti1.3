@@ -96,8 +96,7 @@ class AssignmentsGradesService:
 
     def get_lineitem(self, lineitem_url: t.Optional[str] = None):
         """
-        Retrieves an individual lineitem. By default retrieves the lineitem
-        associated with the LTI message.
+        Retrieves an individual lineitem. By default, retrieves the lineitem associated with the LTI message.
 
         :param lineitem_url: endpoint for LTI line item (optional)
         :return: LineItem instance

@@ -17,6 +17,17 @@ TSubmissionReview = te.TypedDict(
     total=False,
 )
 
+TSubmissionType = te.TypedDict(
+    "TSubmissionType",
+    {
+        "type": str,
+        "external_tool_url": str,
+    },
+    total=False,
+)
+
+CANVAS_SUBMISSION_TYPE = "https://canvas.instructure.com/lti/submission_type"
+
 TLineItem = te.TypedDict(
     "TLineItem",
     {
@@ -29,6 +40,7 @@ TLineItem = te.TypedDict(
         "startDateTime": str,
         "endDateTime": str,
         "submissionReview": TSubmissionReview,
+        CANVAS_SUBMISSION_TYPE: TSubmissionType,
     },
     total=False,
 )
@@ -44,6 +56,7 @@ class LineItem:
     _start_date_time: t.Optional[str] = None
     _end_date_time: t.Optional[str] = None
     _submission_review: t.Optional[TSubmissionReview] = None
+    _submission_type: t.Optional[TSubmissionType] = None
 
     def __init__(self, lineitem: t.Optional[TLineItem] = None):
         if not lineitem:
@@ -57,6 +70,7 @@ class LineItem:
         self._start_date_time = lineitem.get("startDateTime")
         self._end_date_time = lineitem.get("endDateTime")
         self._submission_review = lineitem.get("submissionReview")
+        self._submission_type = lineitem.get(CANVAS_SUBMISSION_TYPE)
 
     def get_id(self) -> t.Optional[str]:
         return self._id
@@ -190,6 +204,22 @@ class LineItem:
 
         return self
 
+    def get_submission_type(self) -> t.Optional[str]:
+        return self._submission_type
+
+    def set_submission_type(self, _type: str, external_tool_url: t.Optional[str]) -> "LineItem":
+        """This is a Canvas extension to support creating assignments linked to the external tools."""
+        if _type not in ["none", "external_tool"]:
+            raise Exception('Invalid "type" argument. Must be "none" or "external_tool"')
+        if _type == "none":
+            self._submission_type = TSubmissionType(type=_type)
+        else:
+            if not external_tool_url:
+                raise Exception('"external_tool_url" field is missing. Must be provided for "external_tool" type')
+            self._submission_type = TSubmissionType(type=_type, external_tool_url=external_tool_url)
+
+        return self
+
     def get_value(self) -> str:
         data = {
             "id": self._id if self._id else None,
@@ -201,5 +231,6 @@ class LineItem:
             "startDateTime": self._start_date_time,
             "endDateTime": self._end_date_time,
             "submissionReview": self._submission_review,
+            CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
         return json.dumps({k: v for k, v in data.items() if v})

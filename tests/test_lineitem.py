@@ -1,9 +1,7 @@
 import json
-from dataclasses import MISSING
-
 from parameterized import parameterized
 
-from pylti1p3.lineitem import LineItem
+from pylti1p3.lineitem import LineItem, FieldStatus
 from .base import TestServicesBase
 
 
@@ -40,7 +38,7 @@ class TestLineItem(TestServicesBase):
     def test_submission_type_none(self, _type, url):
         # Arrange
         lineitem = LineItem()
-        assert lineitem.get_submission_type() is MISSING
+        assert lineitem.get_submission_type() is FieldStatus.UNSET
 
         # Act
         lineitem.set_submission_type(_type, url)
@@ -52,7 +50,7 @@ class TestLineItem(TestServicesBase):
     def test_submission_type_external_tool(self):
         # Arrange
         lineitem = LineItem()
-        assert lineitem.get_submission_type() is MISSING
+        assert lineitem.get_submission_type() is FieldStatus.UNSET
 
         # Act
         lineitem.set_submission_type("external_tool", "https://this.is.external.tool.com/lti/launch")
@@ -70,7 +68,7 @@ class TestLineItem(TestServicesBase):
     def test_submission_types_validation_error(self, _type, url):
         # Arrange
         lineitem = LineItem()
-        assert lineitem.get_submission_type() is MISSING
+        assert lineitem.get_submission_type() is FieldStatus.UNSET
 
         # Act
         self.assertRaises(Exception, lineitem.set_submission_type, _type, url)

@@ -1,4 +1,5 @@
 import json
+from dataclasses import MISSING
 
 from parameterized import parameterized
 
@@ -9,6 +10,27 @@ from .base import TestServicesBase
 class TestLineItem(TestServicesBase):
     # pylint: disable=import-outside-toplevel
 
+    @parameterized.expand([
+        (True, True),
+        (False, False),
+        ("true", ValueError),
+        ("false", ValueError),
+        (1, ValueError),
+        (0, ValueError),
+        (None, ValueError),
+    ])
+    def test_grades_released(self, input_value, expected):
+        # Arrange
+        lineitem = LineItem()
+
+        # Act & Assert
+        if expected is ValueError:
+            with self.assertRaises(ValueError):
+                lineitem.set_grades_released(input_value)
+        else:
+            lineitem.set_grades_released(input_value)
+            self.assertEqual(lineitem.get_grades_released(), expected)
+
     @parameterized.expand(
         [
             ("none", None),
@@ -18,7 +40,7 @@ class TestLineItem(TestServicesBase):
     def test_submission_type_none(self, _type, url):
         # Arrange
         lineitem = LineItem()
-        assert lineitem.get_submission_type() is None
+        assert lineitem.get_submission_type() is MISSING
 
         # Act
         lineitem.set_submission_type(_type, url)
@@ -30,7 +52,7 @@ class TestLineItem(TestServicesBase):
     def test_submission_type_external_tool(self):
         # Arrange
         lineitem = LineItem()
-        assert lineitem.get_submission_type() is None
+        assert lineitem.get_submission_type() is MISSING
 
         # Act
         lineitem.set_submission_type("external_tool", "https://this.is.external.tool.com/lti/launch")
@@ -48,7 +70,7 @@ class TestLineItem(TestServicesBase):
     def test_submission_types_validation_error(self, _type, url):
         # Arrange
         lineitem = LineItem()
-        assert lineitem.get_submission_type() is None
+        assert lineitem.get_submission_type() is MISSING
 
         # Act
         self.assertRaises(Exception, lineitem.set_submission_type, _type, url)
@@ -98,24 +120,3 @@ class TestLineItem(TestServicesBase):
                 "external_tool_url": "https://this.is.external.tool.com/lti/launch",
             },
         })
-
-    @parameterized.expand([
-        (True, True),
-        (False, False),
-        ("true", ValueError),
-        ("false", ValueError),
-        (1, ValueError),
-        (0, ValueError),
-        (None, ValueError),
-    ])
-    def test_grades_released(self, input_value, expected):
-        # Arrange
-        lineitem = LineItem()
-
-        # Act & Assert
-        if expected is ValueError:
-            with self.assertRaises(ValueError):
-                lineitem.set_grades_released(input_value)
-        else:
-            lineitem.set_grades_released(input_value)
-            self.assertEqual(lineitem.get_grades_released(), expected)

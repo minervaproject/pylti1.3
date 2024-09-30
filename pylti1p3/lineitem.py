@@ -1,6 +1,8 @@
 import json
 import typing as t
+from typing import Union
 import typing_extensions as te
+from dataclasses import MISSING, _MISSING_TYPE
 from .exception import LtiException
 
 
@@ -48,41 +50,41 @@ TLineItem = te.TypedDict(
 
 
 class LineItem:
-    _id: t.Optional[str] = None
-    _score_maximum: t.Optional[float] = None
-    _label: t.Optional[str] = None
-    _resource_id: t.Optional[str] = None
-    _resource_link_id: t.Optional[str] = None
-    _tag: t.Optional[str] = None
-    _start_date_time: t.Optional[str] = None
-    _end_date_time: t.Optional[str] = None
-    _grades_released: t.Optional[bool] = None
-    _submission_review: t.Optional[TSubmissionReview] = None
-    _submission_type: t.Optional[TSubmissionType] = None
+    _id: Union[str, None, _MISSING_TYPE] = MISSING
+    _score_maximum: Union[float, None, _MISSING_TYPE] = MISSING
+    _label: Union[str, None, _MISSING_TYPE] = MISSING
+    _resource_id: Union[str, None, _MISSING_TYPE] = MISSING
+    _resource_link_id: Union[str, None, _MISSING_TYPE] = MISSING
+    _tag: Union[str, None, _MISSING_TYPE] = MISSING
+    _start_date_time: Union[str, None, _MISSING_TYPE] = MISSING
+    _end_date_time: Union[str, None, _MISSING_TYPE] = MISSING
+    _grades_released: Union[bool, None, _MISSING_TYPE] = MISSING
+    _submission_review: Union[TSubmissionReview, None, _MISSING_TYPE] = MISSING
+    _submission_type: Union[TSubmissionType, None, _MISSING_TYPE] = MISSING
 
     def __init__(self, lineitem: t.Optional[TLineItem] = None):
         if not lineitem:
             lineitem = {}
-        self._id = lineitem.get("id")
-        self._score_maximum = lineitem.get("scoreMaximum")
-        self._label = lineitem.get("label")
-        self._resource_id = lineitem.get("resourceId")
-        self._resource_link_id = lineitem.get("resourceLinkId")
-        self._tag = lineitem.get("tag")
-        self._start_date_time = lineitem.get("startDateTime")
-        self._end_date_time = lineitem.get("endDateTime")
-        self._grades_released = lineitem.get("gradesReleased")
-        self._submission_review = lineitem.get("submissionReview")
-        self._submission_type = lineitem.get(CANVAS_SUBMISSION_TYPE)
+        self._id = lineitem.get("id", MISSING)
+        self._score_maximum = lineitem.get("scoreMaximum", MISSING)
+        self._label = lineitem.get("label", MISSING)
+        self._resource_id = lineitem.get("resourceId", MISSING)
+        self._resource_link_id = lineitem.get("resourceLinkId", MISSING)
+        self._tag = lineitem.get("tag", MISSING)
+        self._start_date_time = lineitem.get("startDateTime", MISSING)
+        self._end_date_time = lineitem.get("endDateTime", MISSING)
+        self._grades_released = lineitem.get("gradesReleased", MISSING)
+        self._submission_review = lineitem.get("submissionReview", MISSING)
+        self._submission_type = lineitem.get(CANVAS_SUBMISSION_TYPE, MISSING)
 
-    def get_id(self) -> t.Optional[str]:
+    def get_id(self) -> Union[str, None, _MISSING_TYPE]:
         return self._id
 
     def set_id(self, value: str) -> "LineItem":
         self._id = value
         return self
 
-    def get_label(self) -> t.Optional[str]:
+    def get_label(self) -> Union[str, None, _MISSING_TYPE]:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#label
         """
@@ -95,7 +97,7 @@ class LineItem:
         self._label = value
         return self
 
-    def get_score_maximum(self) -> t.Optional[float]:
+    def get_score_maximum(self) -> Union[float, None, _MISSING_TYPE]:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#scoremaximum
         """
@@ -117,7 +119,7 @@ class LineItem:
         self._score_maximum = value
         return self
 
-    def get_resource_id(self) -> t.Optional[str]:
+    def get_resource_id(self) -> Union[str, None, _MISSING_TYPE]:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tool-resource-identifier-resourceid
         """
@@ -130,7 +132,7 @@ class LineItem:
         self._resource_id = value
         return self
 
-    def get_resource_link_id(self) -> t.Optional[str]:
+    def get_resource_link_id(self) -> Union[str, None, _MISSING_TYPE]:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0#resourcelinkid-and-binding-a-line-item-to-a-resource-link
         """
@@ -143,7 +145,7 @@ class LineItem:
         self._resource_link_id = value
         return self
 
-    def get_tag(self) -> t.Optional[str]:
+    def get_tag(self) -> Union[str, None, _MISSING_TYPE]:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tag
         """
@@ -156,7 +158,7 @@ class LineItem:
         self._tag = value
         return self
 
-    def get_start_date_time(self) -> t.Optional[str]:
+    def get_start_date_time(self) -> Union[str, None, _MISSING_TYPE]:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#startdatetime
         """
@@ -169,7 +171,7 @@ class LineItem:
         self._start_date_time = value
         return self
 
-    def get_end_date_time(self) -> t.Optional[str]:
+    def get_end_date_time(self) -> Union[str, None, _MISSING_TYPE]:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#enddatetime
         """
@@ -187,10 +189,10 @@ class LineItem:
             raise ValueError("grades_released must be a boolean value")
         self._grades_released = value
 
-    def get_grades_released(self):
-        return getattr(self, '_grades_released', None)
+    def get_grades_released(self) -> Union[bool, None, _MISSING_TYPE]:
+        return self._grades_released
 
-    def get_submission_review(self) -> t.Optional[TSubmissionReview]:
+    def get_submission_review(self) -> Union[TSubmissionReview, None, _MISSING_TYPE]:
         return self._submission_review
 
     def set_submission_review(
@@ -215,7 +217,7 @@ class LineItem:
 
         return self
     
-    def get_submission_type(self) -> t.Optional[TSubmissionType]:
+    def get_submission_type(self) -> Union[TSubmissionType, None, _MISSING_TYPE]:
         return self._submission_type
 
     def set_submission_type(self, _type: str, external_tool_url: t.Optional[str]) -> "LineItem":
@@ -233,7 +235,7 @@ class LineItem:
 
     def get_value(self) -> str:
         value = {
-            "id": self._id if self._id else None,
+            "id": self._id,
             "scoreMaximum": self._score_maximum,
             "label": self._label,
             "resourceId": self._resource_id,
@@ -245,4 +247,4 @@ class LineItem:
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
-        return json.dumps(value)
+        return json.dumps({k: v for k, v in value.items() if v is not MISSING})

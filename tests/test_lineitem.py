@@ -64,6 +64,7 @@ class TestLineItem(TestServicesBase):
         lineitem.set_tag("test-tag")
         lineitem.set_start_date_time("2021-01-01T00:00:00Z")
         lineitem.set_end_date_time("2021-01-02T00:00:00Z")
+        lineitem.set_grades_released(False)
         lineitem.set_submission_review(
             ["completed", "not_reviewed"],
             label="Test Label",
@@ -85,6 +86,7 @@ class TestLineItem(TestServicesBase):
             "tag": "test-tag",
             "startDateTime": "2021-01-01T00:00:00Z",
             "endDateTime": "2021-01-02T00:00:00Z",
+            "gradesReleased": False,
             "submissionReview": {
                 "reviewableStatus": ["completed", "not_reviewed"],
                 "label": "Test Label",
@@ -96,3 +98,24 @@ class TestLineItem(TestServicesBase):
                 "external_tool_url": "https://this.is.external.tool.com/lti/launch",
             },
         })
+
+    @parameterized.expand([
+        (True, True),
+        (False, False),
+        ("true", ValueError),
+        ("false", ValueError),
+        (1, ValueError),
+        (0, ValueError),
+        (None, ValueError),
+    ])
+    def test_grades_released(self, input_value, expected):
+        # Arrange
+        lineitem = LineItem()
+
+        # Act & Assert
+        if expected is ValueError:
+            with self.assertRaises(ValueError):
+                lineitem.set_grades_released(input_value)
+        else:
+            lineitem.set_grades_released(input_value)
+            self.assertEqual(lineitem.get_grades_released(), expected)

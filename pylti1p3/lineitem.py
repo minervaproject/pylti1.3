@@ -39,6 +39,7 @@ TLineItem = te.TypedDict(
         "resourceLinkId": str,
         "startDateTime": str,
         "endDateTime": str,
+        "gradesReleased": bool,
         "submissionReview": TSubmissionReview,
         CANVAS_SUBMISSION_TYPE: TSubmissionType,
     },
@@ -55,6 +56,7 @@ class LineItem:
     _tag: t.Optional[str] = None
     _start_date_time: t.Optional[str] = None
     _end_date_time: t.Optional[str] = None
+    _grades_released: t.Optional[bool] = None  # Moved up
     _submission_review: t.Optional[TSubmissionReview] = None
     _submission_type: t.Optional[TSubmissionType] = None
 
@@ -69,6 +71,7 @@ class LineItem:
         self._tag = lineitem.get("tag")
         self._start_date_time = lineitem.get("startDateTime")
         self._end_date_time = lineitem.get("endDateTime")
+        self._grades_released = lineitem.get("gradesReleased")  # Moved up
         self._submission_review = lineitem.get("submissionReview")
         self._submission_type = lineitem.get(CANVAS_SUBMISSION_TYPE)
 
@@ -179,6 +182,14 @@ class LineItem:
         self._end_date_time = value
         return self
 
+    def set_grades_released(self, value):
+        if not isinstance(value, bool):
+            raise ValueError("grades_released must be a boolean value")
+        self._grades_released = value
+
+    def get_grades_released(self):
+        return getattr(self, '_grades_released', None)
+
     def get_submission_review(self) -> t.Optional[TSubmissionReview]:
         return self._submission_review
 
@@ -221,7 +232,7 @@ class LineItem:
         return self
 
     def get_value(self) -> str:
-        data = {
+        value = {
             "id": self._id if self._id else None,
             "scoreMaximum": self._score_maximum,
             "label": self._label,
@@ -230,7 +241,10 @@ class LineItem:
             "tag": self._tag,
             "startDateTime": self._start_date_time,
             "endDateTime": self._end_date_time,
+            "gradesReleased": self._grades_released,
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
-        return json.dumps({k: v for k, v in data.items() if v})
+        if hasattr(self, '_grades_released'):
+            value['gradesReleased'] = self._grades_released
+        return json.dumps(value)

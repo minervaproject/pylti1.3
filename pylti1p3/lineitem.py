@@ -48,8 +48,10 @@ TLineItem = te.TypedDict(
     total=False,
 )
 
+
 class FieldStatus(Enum):
     UNSET = "UNSET"
+
 
 class LineItem:
     _id: str | None | FieldStatus = FieldStatus.UNSET

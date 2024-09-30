@@ -56,7 +56,7 @@ class LineItem:
     _tag: t.Optional[str] = None
     _start_date_time: t.Optional[str] = None
     _end_date_time: t.Optional[str] = None
-    _grades_released: t.Optional[bool] = None  # Moved up
+    _grades_released: t.Optional[bool] = None
     _submission_review: t.Optional[TSubmissionReview] = None
     _submission_type: t.Optional[TSubmissionType] = None
 
@@ -71,7 +71,7 @@ class LineItem:
         self._tag = lineitem.get("tag")
         self._start_date_time = lineitem.get("startDateTime")
         self._end_date_time = lineitem.get("endDateTime")
-        self._grades_released = lineitem.get("gradesReleased")  # Moved up
+        self._grades_released = lineitem.get("gradesReleased")
         self._submission_review = lineitem.get("submissionReview")
         self._submission_type = lineitem.get(CANVAS_SUBMISSION_TYPE)
 
@@ -214,8 +214,8 @@ class LineItem:
             self._submission_review["custom"] = custom
 
         return self
-
-    def get_submission_type(self) -> t.Optional[str]:
+    
+    def get_submission_type(self) -> t.Optional[TSubmissionType]:
         return self._submission_type
 
     def set_submission_type(self, _type: str, external_tool_url: t.Optional[str]) -> "LineItem":
@@ -245,6 +245,4 @@ class LineItem:
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
-        if hasattr(self, '_grades_released'):
-            value['gradesReleased'] = self._grades_released
         return json.dumps(value)

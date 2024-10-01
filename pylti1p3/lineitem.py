@@ -237,8 +237,8 @@ class LineItem:
         Prepare the line item data in the format required by the LTI-AGS specification.
 
         The final dictionary is then converted to a JSON string and then sent via the API.
-        Any missing values are not included in the final JSON string. According to the LTI-AGS specification,
-        any missing fields will be interpreted as empty, and will be cleared from the line item in the LMS.
+        Any missing values are explicitly set to `None` in the dictionary and then converted to
+        `null` values in the JSON.
         https://www.imsglobal.org/spec/lti-ags/v2p0/#updating-a-line-item
         https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default
         """

@@ -78,7 +78,7 @@ class LineItem:
     def get_id(self) -> t.Optional[str]:
         return self._id
 
-    def set_id(self, value: str) -> "LineItem":
+    def set_id(self, value: t.Optional[str]) -> "LineItem":
         self._id = value
         return self
 
@@ -88,7 +88,7 @@ class LineItem:
         """
         return self._label
 
-    def set_label(self, value: str) -> "LineItem":
+    def set_label(self, value: t.Optional[str]) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#label
         """
@@ -123,7 +123,7 @@ class LineItem:
         """
         return self._resource_id
 
-    def set_resource_id(self, value: str) -> "LineItem":
+    def set_resource_id(self, value: t.Optional[str]) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tool-resource-identifier-resourceid
         """
@@ -136,7 +136,7 @@ class LineItem:
         """
         return self._resource_link_id
 
-    def set_resource_link_id(self, value: str) -> "LineItem":
+    def set_resource_link_id(self, value: t.Optional[str]) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0#resourcelinkid-and-binding-a-line-item-to-a-resource-link
         """
@@ -149,7 +149,7 @@ class LineItem:
         """
         return self._tag
 
-    def set_tag(self, value: str) -> "LineItem":
+    def set_tag(self, value: t.Optional[str]) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tag
         """
@@ -162,7 +162,7 @@ class LineItem:
         """
         return self._start_date_time
 
-    def set_start_date_time(self, value: str) -> "LineItem":
+    def set_start_date_time(self, value: t.Optional[str]) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#startdatetime
         """
@@ -175,21 +175,21 @@ class LineItem:
         """
         return self._end_date_time
 
-    def set_end_date_time(self, value: str) -> "LineItem":
+    def set_end_date_time(self, value: t.Optional[str]) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#enddatetime
         """
         self._end_date_time = value
         return self
 
-    def set_grades_released(self, value):
-        if not isinstance(value, bool):
+    def set_grades_released(self, value: t.Optional[bool]) -> "LineItem":
+        if value is not None and not isinstance(value, bool):
             raise ValueError("grades_released must be a boolean value")
         self._grades_released = value
         return self
 
     def get_grades_released(self):
-        return getattr(self, '_grades_released', None)
+        return self._grades_released
 
     def get_submission_review(self) -> t.Optional[TSubmissionReview]:
         return self._submission_review

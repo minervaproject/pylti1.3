@@ -192,6 +192,7 @@ class LineItem:
         if not isinstance(value, bool):
             raise ValueError("grades_released must be a boolean value")
         self._grades_released = value
+        return self
 
     def get_grades_released(self) -> bool | None | FieldStatus:
         return self._grades_released

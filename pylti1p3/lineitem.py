@@ -255,4 +255,4 @@ class LineItem:
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
-        return json.dumps({k: v for k, v in data.items() if v})
+        return json.dumps({k: v for k, v in data.items() if v is not None})

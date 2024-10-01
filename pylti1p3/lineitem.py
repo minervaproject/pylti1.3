@@ -243,7 +243,6 @@ class LineItem:
         https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default
         """
         data = {
-            "id": self._id,
             "scoreMaximum": self._score_maximum,
             "label": self._label,
             "resourceId": self._resource_id,
@@ -255,4 +254,4 @@ class LineItem:
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
-        return json.dumps({k: v for k, v in data.items() if v is not None})
+        return json.dumps(data)

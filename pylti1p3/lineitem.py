@@ -233,8 +233,17 @@ class LineItem:
         return self
 
     def get_value(self) -> str:
-        value = {
-            "id": self._id if self._id else None,
+        """
+        Prepare the line item data in the format required by the LTI-AGS specification.
+
+        The final dictionary is then converted to a JSON string and then sent via the API.
+        Any missing values are not included in the final JSON string. According to the LTI-AGS specification,
+        any missing fields will be interpreted as empty, and will be cleared from the line item in the LMS.
+        https://www.imsglobal.org/spec/lti-ags/v2p0/#updating-a-line-item
+        https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default
+        """
+        data = {
+            "id": self._id,
             "scoreMaximum": self._score_maximum,
             "label": self._label,
             "resourceId": self._resource_id,
@@ -246,4 +255,4 @@ class LineItem:
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
-        return json.dumps(value)
+        return json.dumps({k: v for k, v in data.items() if v})

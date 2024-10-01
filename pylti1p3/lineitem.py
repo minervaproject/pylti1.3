@@ -186,6 +186,7 @@ class LineItem:
         if not isinstance(value, bool):
             raise ValueError("grades_released must be a boolean value")
         self._grades_released = value
+        return self
 
     def get_grades_released(self):
         return getattr(self, '_grades_released', None)

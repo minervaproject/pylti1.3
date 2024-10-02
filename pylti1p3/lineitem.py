@@ -39,6 +39,7 @@ TLineItem = te.TypedDict(
         "resourceLinkId": str,
         "startDateTime": str,
         "endDateTime": str,
+        "gradesReleased": bool,
         "submissionReview": TSubmissionReview,
         CANVAS_SUBMISSION_TYPE: TSubmissionType,
     },
@@ -47,18 +48,19 @@ TLineItem = te.TypedDict(
 
 
 class LineItem:
-    _id: t.Optional[str] = None
-    _score_maximum: t.Optional[float] = None
-    _label: t.Optional[str] = None
-    _resource_id: t.Optional[str] = None
-    _resource_link_id: t.Optional[str] = None
-    _tag: t.Optional[str] = None
-    _start_date_time: t.Optional[str] = None
-    _end_date_time: t.Optional[str] = None
-    _submission_review: t.Optional[TSubmissionReview] = None
-    _submission_type: t.Optional[TSubmissionType] = None
+    _id: str | None = None
+    _score_maximum: float | None = None
+    _label: str | None = None
+    _resource_id: str | None = None
+    _resource_link_id: str | None = None
+    _tag: str | None = None
+    _start_date_time: str | None = None
+    _end_date_time: str | None = None
+    _grades_released: bool | None = None
+    _submission_review: TSubmissionReview | None = None
+    _submission_type: TSubmissionType | None = None
 
-    def __init__(self, lineitem: t.Optional[TLineItem] = None):
+    def __init__(self, lineitem: TLineItem | None = None):
         if not lineitem:
             lineitem = {}
         self._id = lineitem.get("id")
@@ -69,30 +71,31 @@ class LineItem:
         self._tag = lineitem.get("tag")
         self._start_date_time = lineitem.get("startDateTime")
         self._end_date_time = lineitem.get("endDateTime")
+        self._grades_released = lineitem.get("gradesReleased")
         self._submission_review = lineitem.get("submissionReview")
         self._submission_type = lineitem.get(CANVAS_SUBMISSION_TYPE)
 
-    def get_id(self) -> t.Optional[str]:
+    def get_id(self) -> str | None:
         return self._id
 
-    def set_id(self, value: str) -> "LineItem":
+    def set_id(self, value: str | None) -> "LineItem":
         self._id = value
         return self
 
-    def get_label(self) -> t.Optional[str]:
+    def get_label(self) -> str | None:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#label
         """
         return self._label
 
-    def set_label(self, value: str) -> "LineItem":
+    def set_label(self, value: str | None) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#label
         """
         self._label = value
         return self
 
-    def get_score_maximum(self) -> t.Optional[float]:
+    def get_score_maximum(self) -> float | None:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#scoremaximum
         """
@@ -114,72 +117,81 @@ class LineItem:
         self._score_maximum = value
         return self
 
-    def get_resource_id(self) -> t.Optional[str]:
+    def get_resource_id(self) -> str | None:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tool-resource-identifier-resourceid
         """
         return self._resource_id
 
-    def set_resource_id(self, value: str) -> "LineItem":
+    def set_resource_id(self, value: str | None) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tool-resource-identifier-resourceid
         """
         self._resource_id = value
         return self
 
-    def get_resource_link_id(self) -> t.Optional[str]:
+    def get_resource_link_id(self) -> str | None:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0#resourcelinkid-and-binding-a-line-item-to-a-resource-link
         """
         return self._resource_link_id
 
-    def set_resource_link_id(self, value: str) -> "LineItem":
+    def set_resource_link_id(self, value: str | None) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0#resourcelinkid-and-binding-a-line-item-to-a-resource-link
         """
         self._resource_link_id = value
         return self
 
-    def get_tag(self) -> t.Optional[str]:
+    def get_tag(self) -> str | None:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tag
         """
         return self._tag
 
-    def set_tag(self, value: str) -> "LineItem":
+    def set_tag(self, value: str | None) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#tag
         """
         self._tag = value
         return self
 
-    def get_start_date_time(self) -> t.Optional[str]:
+    def get_start_date_time(self) -> str | None:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#startdatetime
         """
         return self._start_date_time
 
-    def set_start_date_time(self, value: str) -> "LineItem":
+    def set_start_date_time(self, value: str | None) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#startdatetime
         """
         self._start_date_time = value
         return self
 
-    def get_end_date_time(self) -> t.Optional[str]:
+    def get_end_date_time(self) -> str | None:
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#enddatetime
         """
         return self._end_date_time
 
-    def set_end_date_time(self, value: str) -> "LineItem":
+    def set_end_date_time(self, value: str | None) -> "LineItem":
         """
         https://www.imsglobal.org/spec/lti-ags/v2p0/#enddatetime
         """
         self._end_date_time = value
         return self
 
-    def get_submission_review(self) -> t.Optional[TSubmissionReview]:
+    def set_grades_released(self, value: bool | None) -> "LineItem":
+        if value is not None and not isinstance(value, bool):
+            raise ValueError("grades_released must be a boolean value")
+        self._grades_released = value
+        return self
+
+    def get_grades_released(self):
+        return self._grades_released
+
+    def get_submission_review(self) -> TSubmissionReview | None:
         return self._submission_review
 
     def set_submission_review(
@@ -203,8 +215,8 @@ class LineItem:
             self._submission_review["custom"] = custom
 
         return self
-
-    def get_submission_type(self) -> t.Optional[str]:
+    
+    def get_submission_type(self) -> TSubmissionType | None:
         return self._submission_type
 
     def set_submission_type(self, _type: str, external_tool_url: t.Optional[str]) -> "LineItem":
@@ -221,8 +233,16 @@ class LineItem:
         return self
 
     def get_value(self) -> str:
+        """
+        Prepare the line item data in the format required by the LTI-AGS specification.
+
+        The final dictionary is then converted to a JSON string and then sent via the API.
+        Any missing values are explicitly set to `None` in the dictionary and then converted to
+        `null` values in the JSON.
+        https://www.imsglobal.org/spec/lti-ags/v2p0/#updating-a-line-item
+        https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default
+        """
         data = {
-            "id": self._id if self._id else None,
             "scoreMaximum": self._score_maximum,
             "label": self._label,
             "resourceId": self._resource_id,
@@ -230,7 +250,8 @@ class LineItem:
             "tag": self._tag,
             "startDateTime": self._start_date_time,
             "endDateTime": self._end_date_time,
+            "gradesReleased": self._grades_released,
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
-        return json.dumps({k: v for k, v in data.items() if v})
+        return json.dumps(data)

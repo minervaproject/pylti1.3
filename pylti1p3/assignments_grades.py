@@ -1,11 +1,11 @@
 import typing as t
-import typing_extensions as te
-from .exception import LtiException
-from .lineitem import LineItem
-from .grade import Grade
-from .lineitem import TLineItem
-from .service_connector import ServiceConnector, TServiceConnectorResponse
 
+import typing_extensions as te
+
+from .exception import LtiException
+from .grade import Grade
+from .lineitem import LineItem, TLineItem
+from .service_connector import ServiceConnector, TServiceConnectorResponse
 
 TAssignmentsGradersData = te.TypedDict(
     "TAssignmentsGradersData",
@@ -29,41 +29,26 @@ class AssignmentsGradesService:
     _service_connector: ServiceConnector
     _service_data: TAssignmentsGradersData
 
-    def __init__(
-        self, service_connector: ServiceConnector, service_data: TAssignmentsGradersData
-    ):
+    def __init__(self, service_connector: ServiceConnector, service_data: TAssignmentsGradersData):
         self._service_connector = service_connector
         self._service_data = service_data
 
     def can_read_lineitem(self) -> bool:
         return (
-            "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly"
-            in self._service_data["scope"]
-            or "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem"
-            in self._service_data["scope"]
+            "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly" in self._service_data["scope"]
+            or "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem" in self._service_data["scope"]
         )
 
     def can_create_lineitem(self) -> bool:
-        return (
-            "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem"
-            in self._service_data["scope"]
-        )
+        return "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem" in self._service_data["scope"]
 
     def can_read_grades(self) -> bool:
-        return (
-            "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly"
-            in self._service_data["scope"]
-        )
+        return "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly" in self._service_data["scope"]
 
     def can_put_grade(self) -> bool:
-        return (
-            "https://purl.imsglobal.org/spec/lti-ags/scope/score"
-            in self._service_data["scope"]
-        )
+        return "https://purl.imsglobal.org/spec/lti-ags/scope/score" in self._service_data["scope"]
 
-    def put_grade(
-        self, grade: Grade, lineitem: t.Optional[LineItem] = None
-    ) -> TServiceConnectorResponse:
+    def put_grade(self, grade: Grade, lineitem: t.Optional[LineItem] = None) -> TServiceConnectorResponse:
         """
         Send grade to the LTI platform.
 
@@ -89,7 +74,7 @@ class AssignmentsGradesService:
         return self._service_connector.make_service_request(
             self._service_data["scope"],
             score_url,
-            method='POST',
+            method="POST",
             data=grade.get_value(),
             content_type="application/vnd.ims.lis.v1.score+json",
         )
@@ -129,7 +114,7 @@ class AssignmentsGradesService:
         lineitem_response = self._service_connector.make_service_request(
             self._service_data["scope"],
             lineitem_url,
-            method='PUT',
+            method="PUT",
             data=lineitem.get_value(),
             content_type="application/vnd.ims.lis.v2.lineitem+json",
             accept="application/vnd.ims.lis.v2.lineitem+json",
@@ -149,14 +134,12 @@ class AssignmentsGradesService:
         self._service_connector.make_service_request(
             self._service_data["scope"],
             lineitem_url,
-            method='DELETE',
+            method="DELETE",
             content_type="application/vnd.ims.lis.v2.lineitem+json",
             accept="application/vnd.ims.lis.v2.lineitem+json",
         )
 
-    def get_lineitems_page(
-        self, lineitems_url: t.Optional[str] = None
-    ) -> t.Tuple[list, t.Optional[str]]:
+    def get_lineitems_page(self, lineitems_url: t.Optional[str] = None) -> t.Tuple[list, t.Optional[str]]:
         """
         Get one page with line items.
 
@@ -229,9 +212,7 @@ class AssignmentsGradesService:
         """
         return self.find_lineitem("tag", tag)
 
-    def find_lineitem_by_resource_link_id(
-        self, resource_link_id: str
-    ) -> t.Optional[LineItem]:
+    def find_lineitem_by_resource_link_id(self, resource_link_id: str) -> t.Optional[LineItem]:
         """
         Find line item by Resource LinkID.
 
@@ -249,9 +230,7 @@ class AssignmentsGradesService:
         """
         return self.find_lineitem("resourceId", resource_id)
 
-    def find_or_create_lineitem(
-        self, new_lineitem: LineItem, find_by: str = "tag"
-    ) -> LineItem:
+    def find_or_create_lineitem(self, new_lineitem: LineItem, find_by: str = "tag") -> LineItem:
         """
         Try to find line item using ID or Tag. New lime item will be created if nothing is found.
 
@@ -291,7 +270,7 @@ class AssignmentsGradesService:
         created_lineitem = self._service_connector.make_service_request(
             self._service_data["scope"],
             self._service_data["lineitems"],
-            method='POST',
+            method="POST",
             data=new_lineitem.get_value(),
             content_type="application/vnd.ims.lis.v2.lineitem+json",
             accept="application/vnd.ims.lis.v2.lineitem+json",
@@ -299,6 +278,28 @@ class AssignmentsGradesService:
         if not isinstance(created_lineitem["body"], dict):
             raise LtiException("Unknown response type received for create line item")
         return LineItem(t.cast(TLineItem, created_lineitem["body"]))
+
+    def get_grades_page(self, results_url: t.Optional[str] = None) -> t.Tuple[list, t.Optional[str]]:
+        """
+        Get one page with grades.
+
+        :param results_url: LTI platform's URL (optional)
+        :return: tuple in format: (list with grades, next page url)
+        """
+        if not self.can_read_grades():
+            raise LtiException("Can't read grades: Missing required scope")
+
+        if not results_url:
+            results_url = self._add_url_path_ending(self._service_data["lineitem"], "results")
+
+        results = self._service_connector.make_service_request(
+            self._service_data["scope"],
+            results_url,
+            accept="application/vnd.ims.lis.v2.resultcontainer+json",
+        )
+        if not isinstance(results["body"], list):
+            raise LtiException("Unknown response type received for results")
+        return results["body"], results.get("next_page_url")
 
     def get_grades(self, lineitem: t.Optional[LineItem] = None) -> list:
         """
@@ -318,15 +319,14 @@ class AssignmentsGradesService:
         if not lineitem_id:
             return []
 
+        grades_res_lst = []
         results_url = self._add_url_path_ending(lineitem_id, "results")
-        scores = self._service_connector.make_service_request(
-            self._service_data["scope"],
-            results_url,
-            accept="application/vnd.ims.lis.v2.resultcontainer+json",
-        )
-        if not isinstance(scores["body"], list):
-            raise LtiException("Unknown response type received for results")
-        return scores["body"]
+
+        while results_url:
+            results, results_url = self.get_grades_page(results_url)
+            grades_res_lst.extend(results)
+
+        return grades_res_lst
 
     @staticmethod
     def _add_url_path_ending(url: str, url_path_ending: str) -> str:

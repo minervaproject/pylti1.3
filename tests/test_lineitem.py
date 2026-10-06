@@ -119,3 +119,18 @@ class TestLineItem(TestServicesBase):
             },
         }
         assert json.loads(value) == expected
+
+    def test_get_value_omits_unset_resource_link_id(self):
+        lineitem = LineItem()
+        lineitem.set_score_maximum(10)
+        lineitem.set_label("Partial")
+        lineitem.set_resource_id("page-1")
+        lineitem.set_tag("Minerva")
+
+        value = json.loads(lineitem.get_value())
+
+        assert "resourceLinkId" not in value
+        # Other unset optionals still serialize as null (null-as-clear on update).
+        assert value["endDateTime"] is None
+        assert value["startDateTime"] is None
+

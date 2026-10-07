@@ -238,7 +238,9 @@ class LineItem:
 
         The final dictionary is then converted to a JSON string and then sent via the API.
         Any missing values are explicitly set to `None` in the dictionary and then converted to
-        `null` values in the JSON.
+        `null` values in the JSON, except `resourceLinkId`: when unset it is omitted. Some
+        platforms (e.g. Schoology) reject `"resourceLinkId": null` while still treating the
+        field as optional. Other optional fields keep null-as-clear semantics on update.
         https://www.imsglobal.org/spec/lti-ags/v2p0/#updating-a-line-item
         https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default
         """
@@ -246,7 +248,6 @@ class LineItem:
             "scoreMaximum": self._score_maximum,
             "label": self._label,
             "resourceId": self._resource_id,
-            "resourceLinkId": self._resource_link_id,
             "tag": self._tag,
             "startDateTime": self._start_date_time,
             "endDateTime": self._end_date_time,
@@ -254,4 +255,6 @@ class LineItem:
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
         }
+        if self._resource_link_id is not None:
+            data["resourceLinkId"] = self._resource_link_id
         return json.dumps(data)

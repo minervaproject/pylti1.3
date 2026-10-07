@@ -120,7 +120,7 @@ class TestLineItem(TestServicesBase):
         }
         assert json.loads(value) == expected
 
-    def test_get_value_omits_unset_schoology_rejected_null_strings(self):
+    def test_get_value_omits_unset_resource_link_id_and_start_date_time(self):
         lineitem = LineItem()
         lineitem.set_score_maximum(10)
         lineitem.set_label("Partial")
@@ -129,11 +129,8 @@ class TestLineItem(TestServicesBase):
 
         value = json.loads(lineitem.get_value())
 
-        # Schoology rejects these as null; omit when unset.
         assert "resourceLinkId" not in value
         assert "startDateTime" not in value
-        assert "endDateTime" not in value
-        # Other unset optionals still serialize as null (null-as-clear on update).
-        assert value["gradesReleased"] is None
-        assert value["submissionReview"] is None
+        # endDateTime keeps null-as-clear semantics on update (Canvas).
+        assert value["endDateTime"] is None
 

@@ -238,10 +238,10 @@ class LineItem:
 
         The final dictionary is then converted to a JSON string and then sent via the API.
         Any missing values are explicitly set to `None` in the dictionary and then converted to
-        `null` values in the JSON, except `resourceLinkId`, `startDateTime`, and `endDateTime`:
-        when unset they are omitted. Some platforms (e.g. Schoology) reject those fields as
-        `null` while still treating them as optional. Other optional fields keep null-as-clear
-        semantics on update.
+        `null` values in the JSON, except `resourceLinkId` and `startDateTime`: when unset they
+        are omitted. Some platforms (e.g. Schoology) reject `"resourceLinkId": null` /
+        `"startDateTime": null` while still treating those fields as optional. Other optional
+        fields keep null-as-clear semantics on update (e.g. `endDateTime`).
         https://www.imsglobal.org/spec/lti-ags/v2p0/#updating-a-line-item
         https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default
         """
@@ -250,6 +250,7 @@ class LineItem:
             "label": self._label,
             "resourceId": self._resource_id,
             "tag": self._tag,
+            "endDateTime": self._end_date_time,
             "gradesReleased": self._grades_released,
             "submissionReview": self._submission_review,
             CANVAS_SUBMISSION_TYPE: self._submission_type,
@@ -258,6 +259,4 @@ class LineItem:
             data["resourceLinkId"] = self._resource_link_id
         if self._start_date_time is not None:
             data["startDateTime"] = self._start_date_time
-        if self._end_date_time is not None:
-            data["endDateTime"] = self._end_date_time
         return json.dumps(data)

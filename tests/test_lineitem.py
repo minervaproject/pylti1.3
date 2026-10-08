@@ -120,7 +120,7 @@ class TestLineItem(TestServicesBase):
         }
         assert json.loads(value) == expected
 
-    def test_get_value_omits_unset_resource_link_id(self):
+    def test_get_value_omits_unset_resource_link_id_and_start_date_time(self):
         lineitem = LineItem()
         lineitem.set_score_maximum(10)
         lineitem.set_label("Partial")
@@ -130,7 +130,7 @@ class TestLineItem(TestServicesBase):
         value = json.loads(lineitem.get_value())
 
         assert "resourceLinkId" not in value
-        # Other unset optionals still serialize as null (null-as-clear on update).
+        assert "startDateTime" not in value
+        # endDateTime keeps null-as-clear semantics on update (Canvas).
         assert value["endDateTime"] is None
-        assert value["startDateTime"] is None
 
